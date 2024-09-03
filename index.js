@@ -7,7 +7,7 @@ class Result{
   }
 }
 
-function negamax(oxo, deep=1){
+function negamax(oxo, deep=1, alpha=-Infinity, beta=Infinity){
   // if current player just lost
   if (oxo.isWinning())return new Result(-(9-deep), null);
   // draw
@@ -18,7 +18,7 @@ function negamax(oxo, deep=1){
   for (const move of oxo.getMoves()){
     oxo.makeMove(move);
 
-    let result = negamax(oxo, deep+1);
+    let result = negamax(oxo, deep+1, -beta, -alpha);
     result.score = -result.score;
 
     if (result.score > best_score){
@@ -27,10 +27,19 @@ function negamax(oxo, deep=1){
     }
     
     oxo.undoLastMove();
+
+    // alpha-beta pruning
+    alpha = Math.max(alpha, result.score);
+    if (result.score >= beta){
+      alpha_beta_usage++;
+      break;
+    }
   }
 
   return new Result(best_score, best_move);
 }
 
 let oxo = new Oxo();
+let alpha_beta_usage = 0;
 console.log(negamax(oxo));
+console.log(`alpha-beta has prune ${alpha_beta_usage} times`);
