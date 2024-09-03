@@ -21,7 +21,7 @@ function get_result(oxo){
   return transposition_table[hash];
 }
 
-function negamax(oxo, deep=1){
+function negamax(oxo, deep=1, alpha=-Infinity, beta=Infinity){
   // if current player just lost
   if (oxo.isWinning())return new Result(-(9-deep), null);
   // draw
@@ -31,7 +31,7 @@ function negamax(oxo, deep=1){
   if (transposition_table_result){
     // count the number of times we used the transposition table
     transposition_table_used_times++;
-    return transposition_table_result;
+    alpha = Math.max(alpha, transposition_table_result.score);
   }
 
   let best_move = -1;
@@ -39,8 +39,8 @@ function negamax(oxo, deep=1){
   for (const move of oxo.getMoves()){
     oxo.makeMove(move);
 
-    let result = negamax(oxo, deep+1);
-    let score = -result.score
+    let result = negamax(oxo, deep+1, -beta, -alpha);
+    let score = -result.score;
 
     if (score > best_score){
       best_score = score;
@@ -48,6 +48,13 @@ function negamax(oxo, deep=1){
     }
     
     oxo.undoLastMove();
+
+    // alpha-beta pruning
+    alpha = Math.max(alpha, score);
+    if (score >= beta){
+      alpha_beta_usage++;
+      break;
+    }
   }
 
   let result = new Result(best_score, best_move);
@@ -58,5 +65,7 @@ function negamax(oxo, deep=1){
 let oxo = new Oxo();
 let transposition_table = {};
 let transposition_table_used_times = 0;
+let alpha_beta_usage = 0;
 console.log(negamax(oxo));
 console.log(`transposition table used ${transposition_table_used_times} times`);
+console.log(`alpha-beta has been used ${alpha_beta_usage} times`);
