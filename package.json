@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "simple_tic_tac_toe_engine": "^1.2.0"
+  }
+}
